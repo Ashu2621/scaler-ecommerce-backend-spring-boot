@@ -1,0 +1,7 @@
+aws_region          = "ap-south-1"
+project_name        = "scaler-commerce"
+environment         = "prod"
+container_image_tag = "replace-with-immutable-git-sha"
+jwt_secret_arn      = "arn:aws:secretsmanager:ap-south-1:123456789012:secret:scaler-commerce-jwt"
+route53_zone_id     = ""
+domain_name         = ""

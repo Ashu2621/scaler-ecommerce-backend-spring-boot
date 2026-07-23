@@ -1,0 +1,120 @@
+spring:
+  application:
+    name: scaler-ecommerce-backend
+  datasource:
+    url: jdbc:h2:mem:ecommerce;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_batch_fetch_size: 50
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  cache:
+    type: simple
+    cache-names: products,categories
+  cloud:
+    openfeign:
+      client:
+        config:
+          fakeStoreClient:
+            connectTimeout: 2000
+            readTimeout: 4000
+            loggerLevel: basic
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  mail:
+    host: localhost
+    port: 1025
+    test-connection: false
+  threads:
+    virtual:
+      enabled: false
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+  error:
+    include-message: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+app:
+  bootstrap-admin:
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+  security:
+    jwt:
+      issuer: scaler-ecommerce
+      secret: ${JWT_SECRET:c2NhbGVyLWVjb21tZXJjZS1kZXYtc2VjcmV0LWtleS0zMmJ5dGVzISE=}
+      ttl: 30m
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+    rate-limit:
+      requests: ${RATE_LIMIT_REQUESTS:120}
+      window-seconds: 60
+  integrations:
+    fakestore:
+      base-url: https://fakestoreapi.com
+  payment:
+    reconciliation-delay-ms: 300000
+    mock:
+      enabled: true
+      webhook-secret: ${MOCK_WEBHOOK_SECRET:local-webhook-secret}
+      checkout-base-url: http://localhost:3000/mock-checkout
+    stripe:
+      enabled: false
+      api-key: ${STRIPE_API_KEY:}
+      webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+      success-url: ${PAYMENT_SUCCESS_URL:http://localhost:3000/payment/success}
+      cancel-url: ${PAYMENT_CANCEL_URL:http://localhost:3000/payment/cancel}
+  messaging:
+    provider: local
+    order-events-topic: commerce.order-events
+  notifications:
+    email:
+      enabled: false
+      from: no-reply@scaler-commerce.local
+
+logging:
+  pattern:
+    console: "%d{ISO8601} %-5level [%thread] trace=%X{traceId:-none} %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.scaler.backendproject: INFO
