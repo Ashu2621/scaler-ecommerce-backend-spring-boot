@@ -1,0 +1,11 @@
+.git
+.github
+.idea
+target
+data
+*.iml
+*.log
+.env
+docs
+data-platform
+infrastructure

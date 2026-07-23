@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/ecommerce?useSSL=true&serverTimezone=UTC}
+    username: ${DATABASE_USERNAME:ecommerce}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:20}
+      minimum-idle: 5
+      connection-timeout: 30000
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+      cache-null-values: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2s
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: false
+
+app:
+  payment:
+    mock:
+      enabled: false
+    stripe:
+      enabled: true
+  messaging:
+    provider: ${MESSAGING_PROVIDER:kafka}
+  notifications:
+    email:
+      enabled: ${EMAIL_ENABLED:true}
+
+server:
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:200}
