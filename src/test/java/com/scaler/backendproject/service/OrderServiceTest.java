@@ -43,7 +43,10 @@ class OrderServiceTest {
 
     @Test
     void mergesDuplicateLinesAndCalculatesTotalOnServer() {
-        Product product = product("p1", "USD", new BigDecimal("25.00"));
+        Product product = product("p1", "USD");
+        when(product.getSku()).thenReturn("SKU-p1");
+        when(product.getTitle()).thenReturn("Product p1");
+        when(product.getPrice()).thenReturn(new BigDecimal("25.00"));
         when(productRepository.findAllActiveByIdForUpdate(List.of("p1"))).thenReturn(List.of(product));
 
         var response = orderService.create("buyer@example.com", "idem-1",
@@ -59,7 +62,7 @@ class OrderServiceTest {
 
     @Test
     void rejectsOrderWhenStockReservationFails() {
-        Product product = product("p1", "USD", new BigDecimal("25.00"));
+        Product product = product("p1", "USD");
         doThrow(new IllegalArgumentException("insufficient")).when(product).reserve(5);
         when(productRepository.findAllActiveByIdForUpdate(List.of("p1"))).thenReturn(List.of(product));
 
@@ -69,13 +72,10 @@ class OrderServiceTest {
                 .hasMessageContaining("Insufficient stock");
     }
 
-    private Product product(String id, String currency, BigDecimal price) {
+    private Product product(String id, String currency) {
         Product product = mock(Product.class);
         when(product.getId()).thenReturn(id);
-        when(product.getSku()).thenReturn("SKU-" + id);
-        when(product.getTitle()).thenReturn("Product " + id);
         when(product.getCurrency()).thenReturn(currency);
-        when(product.getPrice()).thenReturn(price);
         return product;
     }
 }
